@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <nav class="navbar">
+  <div id="app" :class="{'is-dark-background': isDark}">
+    <nav class="navbar" :class="{'is-dark-background': isDark}">
       <div class="container">
         <div class="navbar-brand" :class="{'extra-padding': navIsActive}">
           <h2 class="logo is-size-5-desktop is-size-6-touch">Aggregate</h2>
@@ -10,21 +10,21 @@
             <span aria-hidden="true"></span>
           </a>
         </div>
-        <div class="navbar-menu" :class="{'is-active': navIsActive}">
+        <div class="navbar-menu" :class="{'is-active': navIsActive, 'is-dark-background': isDark}">
           <div class="navbar-end">
-            <p v-on:click="changeSelected('Reddit')":class="{ 'active': checkSelected('Reddit')}" class="navbar-item" href="">Reddit</p>
-            <p v-on:click="changeSelected('Hacker News')" :class="{ 'active': checkSelected('Hacker News')}" class="navbar-item" href="">Hacker News</p>
-            <p v-on:click="changeSelected('Google News')" :class="{ 'active': checkSelected('Google News')}" class="navbar-item" href="">Google News</p>
+            <p v-on:click="changeSelected('Reddit')":class="{ 'active': checkSelected('Reddit'), 'is-dark-background': isDark}" class="navbar-item" href="">Reddit</p>
+            <p v-on:click="changeSelected('Hacker News')" :class="{ 'active': checkSelected('Hacker News'), 'is-dark-background': isDark}" class="navbar-item" href="">Hacker News</p>
+            <p v-on:click="changeSelected('Google News')" :class="{ 'active': checkSelected('Google News'), 'is-dark-background': isDark}" class="navbar-item" href="">Google News</p>
           </div>
         </div>
       </div>
     </nav>
     <div v-if="selected == 'Reddit'">
-      <RedditCard v-for="post in redditPosts">
-        <h3 slot="title"><a :href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
-        <li class="article-source" slot="source"><a :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
-        <li class="article-author" slot="author"><a :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
-        <li class="article-time" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
+      <RedditCard v-for="post in redditPosts" :class="{'is-dark-background': isDark}">
+        <h3 slot="title"><a :class="{'is-dark-background': isDark, 'is-light-background': !isDark}":href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
+        <li class="article-source" slot="source"><a :class="{'is-dark-background': isDark, 'is-light-background': !isDark}" :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
+        <li class="article-author" slot="author"><a :class="{'is-dark-background': isDark, 'is-light-background': !isDark}" :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
+        <li class="article-time" :class="{'is-dark-background': isDark, 'is-light-background': !isDark}" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
         <div slot="image" v-if='post.data.hasOwnProperty("preview")'>
           <img v-if="! post.data.preview.images[0].source.url.includes('gif')" class="image" v-bind:src="post.data.preview.images[0].source.url"></img>
           <img class="image" v-else v-bind:src="post.data.preview.images[0].variants.gif.source.url">
@@ -53,6 +53,10 @@
         <p v-if="post.description != null"slot="excerpt">{{ post.description }}</p>
       </RedditCard>
     </div>
+    <div class="bottom-footer" :class="{'is-dark-background': isDark, 'is-light-background': !isDark}">
+      <button @click="isDark=false" class="light-mode button" :class="{'is-dark': isDark, 'is-white': !isDark}">Light</button>
+      <button @click="isDark=true" class="dark-mode button" :class="{'is-dark': isDark, 'is-white': !isDark}">Dark</button>
+    </div>
   </div>
 </template>
 
@@ -70,7 +74,8 @@ export default {
       hackerNewsPostIds: [],
       hackerNewsPosts: [],
       selected: 'Reddit',
-      navIsActive: false
+      navIsActive: false,
+      isDark: true
     }
   },
 
@@ -119,13 +124,6 @@ export default {
 
     changeSelected(newName) {
       this.selected = newName;
-      if (newName == 'Hacker News') {
-        this.fetchHackerNewsData();
-      } else if (newName == 'Reddit') {
-        this.fetchRedditData();
-      } else if (newName == 'Google News') {
-        this.fetchGoogleData();
-      }
     },
 
     parseMarkdown(text) {
@@ -143,13 +141,9 @@ export default {
   },
  
   created() {
-    if (this.selected == 'Reddit') {
-      this.fetchRedditData();
-    } else if (this.selected = 'Hacker News') {
-      this.fetchHackerNewsData();
-    } else if (this.selected == 'Google News') {
-      this.fetchGoogleData();
-    }
+    this.fetchRedditData();
+    this.fetchHackerNewsData();
+    this.fetchGoogleData();
   }
 }
 </script>
@@ -191,6 +185,24 @@ export default {
   .navbar-brand {
     padding-left: 1em;
   }
+}
+
+.is-dark-background {
+  background-color: #363636;
+  color: #fff;
+}
+
+.is-light-background {
+  background-color: #fff;
+  color: #2c2c2c;
+}
+.bottom-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 5px 1px 0px rgba (0,0,0,0.3);
+  text-align: center;
+  padding: 0.5em 0;
 }
 
 </style>
