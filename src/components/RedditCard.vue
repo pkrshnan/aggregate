@@ -55,6 +55,10 @@ export default {
   font-weight: 300;
 }
 
+a {
+  color: #2c2c2c;
+}
+
 a:hover {
   color: #3073ff;
 }
