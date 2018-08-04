@@ -180,14 +180,8 @@ export default {
   font-weight: 400;
 }
 
-.active {
+.navbar-item.active {
   color: #3073FF;
-}
+} 
 
-a {
-  color: #2c2c2c;
-}
-a:hover {
-  color: #3073FF;
-}
 </style>

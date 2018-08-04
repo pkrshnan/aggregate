@@ -54,4 +54,12 @@ export default {
   padding: 0.25em 0em;
   font-weight: 300;
 }
+
+a {
+  color: #2c2c2c;
+}
+
+a:hover {
+  color: #3073ff;
+}
 </style>
