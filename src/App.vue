@@ -21,30 +21,36 @@
     </nav>
     <div v-if="selected == 'Reddit'">
       <RedditCard v-for="post in redditPosts">
-        <h3 slot="title">{{ post.data.title }}</h3>
-        <li class="article-source" slot="source">r/{{ post.data.subreddit }}</li>
-        <li class="article-author" slot="author">u/{{ post.data.author }}</li>
-        <li class="article-time" slot="time">{{ post.data.created }}</li>
+        <h3 slot="title"><a :href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
+        <li class="article-source" slot="source"><a :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
+        <li class="article-author" slot="author"><a :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
+        <li class="article-time" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
         <div slot="image" v-if='post.data.hasOwnProperty("preview")'>
-          <img class="is-centered image" v-bind:src="post.data.preview.images[0].source.url"></img>
+          <img v-if="! post.data.preview.images[0].source.url.includes('gif')" class="image" v-bind:src="post.data.preview.images[0].source.url"></img>
+          <img class="image" v-else v-bind:src="post.data.preview.images[0].variants.gif.source.url">
         </div>
-        <p slot="excerpt">{{preview}}</p>
+        <div v-else slot="excerpt">
+          <span v-html="parseMarkdown(post.data.selftext)"></span>
+        </div>
       </RedditCard>
     </div>
     <div v-if="selected == 'Hacker News'">
       <RedditCard v-for="post in hackerNewsPosts">
-        <h3 slot="title">{{ post.title }}</h3>
-        <li class="article-author" slot="author">{{ post.by }}</li>
-        <li class="article-time" slot="time">{{ post.time }}</li>
-        <p slot="excerpt">{{ post.url }}</p>
+        <h3 slot="title"><a :href="'https://news.ycombinator.com/item?id='+ post.id" target="_blank">{{ post.title }}</a></h3>
+        <li class="article-author" slot="author"><a :href="'https://news.ycombinator.com/user?id='+ post.by" target="_blank">{{ post.by }}</a></li>
+        <li class="article-time" slot="time">{{ Date(post.time).slice(0, 15) }}</li>
+        <p slot="excerpt"><a :href="post.url" target="_blank">{{ post.url }}</a></p>
       </RedditCard>
     </div>
     <div v-if="selected == 'Google News'">
       <RedditCard v-for="post in googlePosts">
-        <h3 slot="title">{{ post.title }}</h3>
+        <h3 slot="title"><a :href="post.url" target="_blank">{{ post.title }}</a></h3>
         <li class="article-author" slot="author">{{ post.source.name }}</li>
-        <li class="article-time" slot="time">{{ post.publishedAt }}</li>
-        <p slot="excerpt">{{ post.url }}</p>
+        <li class="article-time" slot="time">{{ Date(post.publishedAt.slice(0,10)).slice(0,15) }}</li>
+        <div v-if="post.urlToImage != null" slot="image">
+          <img class="image" v-bind:src="post.urlToImage"></img>
+        </div>
+        <p v-if="post.description != null"slot="excerpt">{{ post.description }}</p>
       </RedditCard>
     </div>
   </div>
@@ -119,6 +125,11 @@ export default {
       } else if (newName == 'Google News') {
         this.fetchGoogleData();
       }
+    },
+
+    parseMarkdown(text) {
+      var markdown = require("markdown").markdown;
+      return markdown.toHTML(text);
     }
   },
  
@@ -144,7 +155,7 @@ export default {
 .image {
   margin: auto;
   display: block;
-  padding-top: 1em;
+  padding: 2em;
 }
 .navbar {
   padding: 0.5em 0; 
@@ -170,6 +181,13 @@ export default {
 }
 
 .active {
-  color: #30B3FF;
+  color: #3073FF;
+}
+
+a {
+  color: #2c2c2c;
+}
+a:hover {
+  color: #3073FF;
 }
 </style>

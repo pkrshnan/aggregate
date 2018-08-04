@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bulma-start": "0.0.2",
+    "markdown": "^0.5.0",
     "vue": "^2.5.2"
   },
   "devDependencies": {
