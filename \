@@ -19,22 +19,13 @@
         </div>
       </div>
     </nav>
-    <div v-if="selected == 'Reddit'">
+    <div v-if="selected == 'Reddit' "class="redditCards">
       <RedditCard v-for="post in redditPosts">
         <h3 slot="title">{{ post.data.title }}</h3>
         <li class="article-source" slot="source">r/{{ post.data.subreddit }}</li>
         <li class="article-author" slot="source">u/{{ post.data.author }}</li>
         <li class="article-time" slot="source">{{ post.data.created }}</li>
         <p slot="excerpt">{{ post.data.selftext }}</p>
-      </RedditCard>
-    </div>
-    <div v-if="selected == 'Hacker News'">
-      <RedditCard v-for="post in hackerNewsPosts">
-        <h3 slot="title">{{ post.title }}</h3>
-        <li class="article-source" slot="source">r/{{ post.check }}</li>
-        <li class="article-author" slot="source">{{ post.by }}</li>
-        <li class="article-time" slot="source">{{ post.time }}</li>
-          <p slot="excerpt">{{ post.url }}</p>
       </RedditCard>
     </div>
   </div>
@@ -63,7 +54,6 @@ export default {
 
   methods: {
     fetchRedditData() {
-      this.redditPosts = [];
       axios.get("https://www.reddit.com/.json?limit=100")
         .then(response => {
           this.redditPosts = response.data.data.children;
@@ -71,7 +61,6 @@ export default {
     },
 
     fetchGoogleData() {
-      this.googlePosts = [];
       axios.get("https://newsapi.org/v2/top-headlines?country=ca&pageSize=20&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
         .then(response => {
           this.googlePosts = response.data.articles;
@@ -81,7 +70,6 @@ export default {
     fetchHackerNewsData() {
       axios.get("https://hacker-news.firebaseio.com/v0/newstories.json")
         .then(response => {
-          this.hackerNewsPosts = [];
           this.hackerNewsPostIds = response.data;
           for (var i = 0; i < 100; i++) {
             axios.get("https://hacker-news.firebaseio.com/v0/item/" + this.hackerNewsPostIds[i] + ".json")
@@ -101,25 +89,16 @@ export default {
     },
 
     changeSelected(newName) {
+      console.log(newName);
+      alert("Hello")
       this.selected = newName;
-      if (newName == 'Hacker News') {
-        this.fetchHackerNewsData();
-      } else if (newName == 'Reddit') {
-        this.fetchRedditData();
-      } else if (newName == 'Google News') {
-        this.fetchGoogleData();
-      }
     }
   },
- 
+  
   created() {
-    if (this.selected == 'Reddit') {
-      this.fetchRedditData();
-    } else if (this.selected = 'Hacker News') {
-      this.fetchHackerNewsData();
-    } else if (this.selected == 'Google News') {
-      this.fetchGoogleData();
-    }
+    this.fetchRedditData();
+    this.fetchGoogleData();
+    this.fetchHackerNewsData();
   }
 }
 </script>
@@ -147,9 +126,6 @@ export default {
   padding-right: 0em;
 }
 
-.navbar-item:hover {
-  cursor: pointer;
-}
 .container {
   font-family: 'Raleway';
   font-weight: 400;
