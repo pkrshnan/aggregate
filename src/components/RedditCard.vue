@@ -7,6 +7,7 @@
         <slot name="author"></slot>
         <slot name="time"></slot>
       </ul>
+      <div class="article-image"><slot name="image"></slot></div>
       <div class="excerpt is-size-6-desktop is-size-7-touch"><slot name="excerpt"></slot></div>
     </div>
   </div>
@@ -42,6 +43,7 @@ export default {
 
 .article-info li:after {
   content: " | ";
+  padding: 0.25em;
 }
 
 .article-info li:last-child:after {
