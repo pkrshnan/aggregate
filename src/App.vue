@@ -2,15 +2,15 @@
   <div id="app">
     <nav class="navbar">
       <div class="container">
-        <div class="navbar-brand">
+        <div class="navbar-brand" :class="{'extra-padding': navIsActive}">
           <h2 class="logo is-size-5-desktop is-size-6-touch">Aggregate</h2>
-          <a class="navbar-burger" role="button" aria-label="menu" aria-expanded="false">
+          <a class="navbar-burger" @click="navBurgerToggle" :class="{'is-active': navIsActive}" role="button" aria-label="menu" aria-expanded="false">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
           </a>
         </div>
-        <div class="navbar-menu">
+        <div class="navbar-menu" :class="{'is-active': navIsActive}">
           <div class="navbar-end">
             <p v-on:click="changeSelected('Reddit')":class="{ 'active': checkSelected('Reddit')}" class="navbar-item" href="">Reddit</p>
             <p v-on:click="changeSelected('Hacker News')" :class="{ 'active': checkSelected('Hacker News')}" class="navbar-item" href="">Hacker News</p>
@@ -69,7 +69,8 @@ export default {
       googlePosts: [],
       hackerNewsPostIds: [],
       hackerNewsPosts: [],
-      selected: 'Reddit'
+      selected: 'Reddit',
+      navIsActive: false
     }
   },
 
@@ -130,6 +131,14 @@ export default {
     parseMarkdown(text) {
       var markdown = require("markdown").markdown;
       return markdown.toHTML(text);
+    },
+
+    navBurgerToggle() {
+      if (this.navIsActive) {
+        this.navIsActive = false;
+      } else {
+        this.navIsActive = true;
+      }
     }
   },
  
@@ -158,14 +167,8 @@ export default {
   padding: 2em;
 }
 .navbar {
-  padding: 0.5em 0; 
   margin-bottom: 1.1em;
   box-shadow: 0px 1px 5px rgba(0,0,0,0.3)
-}
-
-.navbar .container {
-  padding-left: 0.5em;
-  padding-right: 0.5em;
 }
 
 .navbar-item:last-child {
@@ -183,5 +186,11 @@ export default {
 .navbar-item.active {
   color: #3073FF;
 } 
+
+@media screen and (max-width: 1024px) {
+  .navbar-brand {
+    padding-left: 1em;
+  }
+}
 
 </style>
