@@ -21,7 +21,7 @@
     </nav>
     <div v-if="selected == 'Reddit'">
       <RedditCard v-for="post in redditPosts">
-        <h3 slot="title"><a ::href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
+        <h3 slot="title"><a :href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
         <li class="article-source" slot="source"><a  :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
         <li class="article-author" slot="author"><a  :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
         <li class="article-time" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
@@ -48,6 +48,14 @@
       </RedditCard>
     </div>
     <div v-if="selected == 'Google News'">
+      <div class="container">
+        <div class="buttons columns">
+          <button @click="googleSelected('World')" :class="{'is-selected': googleCategorySelected('World')}" class="button column category">World</button>
+          <button @click="googleSelected('Canada')" :class="{'is-selected': googleCategorySelected('Canada')}" class="button column category">Canada</button>
+          <button @click="googleSelected('Sports')" :class="{'is-selected': googleCategorySelected('Sports')}" class="button column category">Sports</button>
+          <button @click="googleSelected('Technology')" :class="{'is-selected': googleCategorySelected('Technology')}" class="button column category">Technology</button>
+        </div>
+      </div>
       <RedditCard v-for="post in googlePosts">
         <h3 slot="title"><a :href="post.url" target="_blank">{{ post.title }}</a></h3>
         <li class="article-author" slot="author">{{ post.source.name }}</li>
@@ -76,6 +84,7 @@ export default {
       hackerNewsPosts: [],
       selected: 'Reddit',
       navIsActive: false,
+      googleIsSelected: 'World'
     }
   },
 
@@ -94,10 +103,29 @@ export default {
 
     fetchGoogleData() {
       this.googlePosts = [];
-      axios.get("https://newsapi.org/v2/top-headlines?country=ca&pageSize=20&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
-        .then(response => {
-          this.googlePosts = response.data.articles;
+
+      if (this.googleIsSelected == 'Canada') {
+        axios.get("https://newsapi.org/v2/top-headlines?country=ca&pageSize=20&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
+          .then(response => {
+            this.googlePosts = response.data.articles;
         })
+      } else if (this.googleIsSelected == 'World') {
+        axios.get("https://newsapi.org/v2/top-headlines?language=en&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
+          .then(response => {
+            this.googlePosts = response.data.articles;
+        }) 
+      } else if (this.googleIsSelected == 'Technology') {
+        axios.get("https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
+          .then(response => {
+            console.log("Works!")
+            this.googlePosts = response.data.articles;
+        })
+      } else if (this.googleIsSelected == 'Sports') {
+        axios.get("https://newsapi.org/v2/top-headlines?country=ca&category=sports&apiKey=651b4a2d16cc4b92a6cd0f15379a0e85")
+          .then(response => {
+            this.googlePosts = response.data.articles;
+        })
+      }
     },
 
     fetchHackerNewsData() {
@@ -108,7 +136,6 @@ export default {
           for (var i = 0; i < 100; i++) {
             axios.get("https://hacker-news.firebaseio.com/v0/item/" + this.hackerNewsPostIds[i] + ".json?print=pretty")
               .then(response => {
-                console.log(response.data.url)
                 this.hackerNewsPosts.push(response.data)
               })
           }
@@ -138,6 +165,17 @@ export default {
       } else {
         this.navIsActive = true;
       }
+    },
+
+    googleCategorySelected(name) {
+      if (name == this.googleIsSelected) {
+        return true;
+      }
+    },
+
+    googleSelected(name) {
+      this.googleIsSelected = name;
+      this.fetchGoogleData();
     }
   },
  
@@ -187,5 +225,23 @@ export default {
     padding-left: 1em;
   }
 }
+
+.buttons {
+  text-align: center;
+  margin: 0.5em 0;
+  padding-bottom: 1em;
+}
+
+.category {
+  width: 100%;
+  height: 2.5em;
+  padding: 0.25em;
+}
+
+.category.is-selected {
+  color: #3073FF;
+  border-color: #3073FF;
+}
+
 
 </style>
