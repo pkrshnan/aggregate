@@ -228,13 +228,13 @@ export default {
 
 .buttons {
   text-align: center;
-  margin: 1em 0.75em !important;
+  margin: 1em 0em !important;
 }
 
 .category {
   width: 100%;
   padding: 0.25em !important;
-  height: 3em !important;
+  height: 2.5em !important;
 }
 
 .category.is-selected {
