@@ -20,6 +20,9 @@
       </div>
     </nav>
     <div v-if="selected == 'Reddit'">
+      <div class="container">
+        <input v-model="subreddit" class="searchbar input is-rounded" type="text" placeholder="Enter Subreddit" v-on:keyup="fetchRedditData()">
+      </div>
       <RedditCard v-for="post in redditPosts">
         <h3 slot="title"><a :href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
         <li class="article-source" slot="source"><a  :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
@@ -84,7 +87,8 @@ export default {
       hackerNewsPosts: [],
       selected: 'Reddit',
       navIsActive: false,
-      googleIsSelected: 'World'
+      googleIsSelected: 'World',
+      subreddit: null
     }
   },
 
@@ -95,10 +99,17 @@ export default {
   methods: {
     fetchRedditData() {
       this.redditPosts = [];
-      axios.get("https://www.reddit.com/.json?limit=100")
-        .then(response => {
-          this.redditPosts = response.data.data.children;
-        })
+      if (this.subreddit) {
+        axios.get("https://www.reddit.com/r/" + this.subreddit + '.json?limit=100')          
+          .then(response => {
+            this.redditPosts = response.data.data.children;
+          }) 
+      } else {
+        axios.get("https://www.reddit.com/.json?limit=100")
+          .then(response => {
+            this.redditPosts = response.data.data.children;
+        }) 
+      }
     },
 
     fetchGoogleData() {
@@ -211,6 +222,7 @@ export default {
 .navbar-item:hover {
   cursor: pointer;
 }
+
 .container {
   font-family: 'Raleway';
   font-weight: 400;
@@ -235,6 +247,8 @@ export default {
   width: 100%;
   padding: 0.25em !important;
   height: 2.5em !important;
+  font-family: Raleway;
+  font-weight: 400;
 }
 
 .category.is-selected {
@@ -242,5 +256,7 @@ export default {
   border-color: #3073FF;
 }
 
-
+.searchbar {
+  margin: 0.5 0em !important;
+}
 </style>
