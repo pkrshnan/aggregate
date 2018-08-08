@@ -1,13 +1,17 @@
 <template>
   <div class="container">
     <div class="news-card">
-      <div class="article-title is-size-5-desktop is-size-6-touch"><slot name="title"></slot></div>
-      <ul class="article-info is-size-6-desktop is-size-7-touch">
-        <slot name="source"></slot>
-        <slot name="author"></slot>
-        <slot name="time"></slot>
-      </ul>
-      <div class="article-image"><slot name="image"></slot></div>
+      <div class="columns">
+        <div class="column is-three-quarters">
+          <div class="article-title is-size-5-desktop is-size-6-touch"><slot name="title"></slot></div>
+          <ul class="article-info is-size-6-desktop is-size-7-touch">
+            <slot name="source"></slot>
+            <slot name="author"></slot>
+            <slot name="time"></slot>
+          </ul>
+        </div>
+        <div class="column article-image"><slot name="image"></slot></div>
+      </div>
       <div class="excerpt is-size-6-desktop is-size-7-touch"><slot name="excerpt"></slot></div>
     </div>
   </div>
@@ -30,6 +34,10 @@ export default {
   font-weight: 400;
 }
 
+.news-card .columns {
+  margin-bottom: 0 !important;
+}
+
 .article-info {
   display: inline;
   padding: 0.25em 0em;
@@ -50,8 +58,12 @@ export default {
   content: "";
 }
 
+.article-image {
+  padding-bottom: 0;
+}
+
 .excerpt {
-  padding: 0.25em 0em;
+  padding: 0;
   font-weight: 300;
 }
 
@@ -66,4 +78,5 @@ a:hover {
 .container {
   margin-top: 1em;
 }
+
 </style>

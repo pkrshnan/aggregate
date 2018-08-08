@@ -8,7 +8,7 @@
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
-          </a>
+         </a>
         </div>
         <div class="navbar-menu" @click="navBurgerToggle" :class="{'is-active': navIsActive}">
           <div class="navbar-end">
@@ -20,23 +20,30 @@
       </div>
     </nav>
     <div v-if="selected == 'Reddit'">
+      <Modal v-if="showModal" @close="showModal=false">
+        <h3 class="modalTitle" slot="title">{{modalTitle}}</h3>
+        <iframe class="centered-image" v-if="modalType =='embed'" :src="modalSource" :height="embedHeight" :width="embedWidth"></iframe>
+        <img class="centered-image" :src="modalSource" v-else></img>
+      </Modal>
       <div class="container">
         <input v-model="subreddit" class="searchbar input is-rounded" type="text" placeholder="Enter Subreddit" v-on:keyup="fetchRedditData()">
       </div>
       <RedditCard v-for="post in redditPosts">
-        <h3 slot="title"><a :href="'http://www.reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
+        <h3 slot="title"><a :href="post.data.url" target="_blank">{{ post.data.title }}</a></h3>
         <li class="article-source" slot="source"><a  :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
         <li class="article-author" slot="author"><a  :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
         <li class="article-time" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
         <div slot="image" v-if='post.data.hasOwnProperty("preview")'>
-        <img v-if="! post.data.preview.images[0].source.url.includes('gif')" class="image" v-bind:src="post.data.preview.images[0].source.url"></img>
-          <img class="image" v-else v-bind:src="post.data.preview.images[0].variants.gif.source.url">
+          <img v-if="post.data.thumbnail == 'default'" class="link-image image" src="./assets/link.png">
+          <h3 v-else-if="post.data.over_18 == true" class="title nsfw">NSFW</h3>
+          <a v-else-if="post.data.thumbnail == 'image' || post.data.thumbnail == 'self'" @click="showRedditModal(post)"><img class="image" v-bind:src="post.data.preview.images[0].source.url"></a>
+          <a v-else @click="showRedditModal(post)"><img class="image" :src="post.data.thumbnail"></a>
         </div>
         <div v-else slot="excerpt">
           <span v-html="parseMarkdown(post.data.selftext)"></span>
         </div>
       </RedditCard>
-    </div>
+    </div> 
     <div v-if="selected == 'Hacker News'">
       <RedditCard v-for="post in hackerNewsPosts">
         <h3 slot="title"><a :href="'https://news.ycombinator.com/item?id='+ post.id" target="_blank">{{ post.title }}</a></h3>
@@ -74,6 +81,7 @@
 
 <script>
 import RedditCard from './components/RedditCard'
+import Modal from './components/Modal'
 import axios from 'axios';
 
 export default {
@@ -88,12 +96,19 @@ export default {
       selected: 'Reddit',
       navIsActive: false,
       googleIsSelected: 'World',
-      subreddit: null
+      subreddit: null,
+      showModal: false,
+      modalSource: '',
+      modalTitle: '',
+      embedHeight: '',
+      embedWidth: '',
+      modalType: '',
     }
   },
 
   components: {
-    RedditCard 
+    RedditCard,
+    Modal
   },
 
   methods: {
@@ -153,6 +168,35 @@ export default {
       }); 
     },
 
+    showRedditModal(post) {
+      if (post.data.post_hint === "image") {
+        this.modalSource = post.data.preview.images[0].source.url;
+        this.modalType = 'image';
+      } else if (post.data.post_hint==="rich:video") {
+        this.modalType = 'embed';
+        var link = post.data.media_embed.content;
+        var width = link.slice(link.indexOf("width") + 7, link.indexOf("width") + 10)
+        var height = link.slice(link.indexOf("height") + 8, link.indexOf("height") + 11)
+        link = link.slice(link.indexOf("src") + 5, link.length - 1);
+        link = link.slice(0, link.indexOf('"'));
+
+        while (link.indexOf("amp") != -1) {
+          link = link.replace("amp;", "")
+        }
+        this.modalSource = link; 
+        this.embedWidth = width;
+        this.embedHeight = height;
+
+         
+      } else if (post.data.post_hint === "link") {
+        this.modalSource = post.data.preview.images[0].variants.gif.source.url;
+        console.log(post.data.preview.images[0].variants.gif.source.url);
+        this.modalType= 'image';
+      }     
+      this.modalTitle = post.data.title;
+      this.showModal=true;
+    },
+
     checkSelected(name) {
       if (name == this.selected)  {
         return true;
@@ -208,8 +252,23 @@ export default {
 .image {
   margin: auto;
   display: block;
-  padding: 2em;
+  max-width: 140px;
+  max-height: 140px;
 }
+
+.link-image {
+  border: 1px solid #2c2c2c;
+}
+
+.excerpt {
+  padding-bottom: 1em;
+}
+.nsfw {
+  text-align: center;
+  padding: 0.5em 0;
+  font-weight: 400 !important;
+}
+
 .navbar {
   margin-bottom: 1.1em;
   box-shadow: 0px 1px 5px rgba(0,0,0,0.3)
@@ -258,5 +317,39 @@ export default {
 
 .searchbar {
   margin: 0.5 0em !important;
+  font-family: 'Raleway' !important;
+}
+
+@media screen and (max-width: 768px) {
+  .modal-card {
+    max-width: 600px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .modal-card {
+    max-width: 700px;
+  }
+}
+
+@media screen and (max-width: 1215px) {
+  .modal-card {
+    width: 900px;
+  }
+}
+
+@media screen and (max-width: 1407px) {
+  .modal-card {
+    width: 1100px;
+  }
+}
+
+.modal-card {
+  width: 1300px;
+}
+
+.centered-image {
+  display: block;
+  margin: auto;
 }
 </style>
