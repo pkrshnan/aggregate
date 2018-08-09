@@ -175,8 +175,13 @@ export default {
 
     showRedditModal(post) {
       if (post.data.post_hint === "image") {
-        this.modalSource = post.data.preview.images[0].source.url;
-        this.modalType = 'image';
+        if (post.data.url.indexOf('gif') != -1) {
+          this.modalSource = post.data.url;
+          this.modalType = "image";
+        } else {
+          this.modalSource = post.data.preview.images[0].source.url;
+          this.modalType = 'image';
+        }
       } else if (post.data.post_hint==="rich:video") {
         this.modalType = 'embed';
         var link = post.data.media_embed.content;
@@ -189,10 +194,9 @@ export default {
           link = link.replace("amp;", "")
         }
         this.modalSource = link; 
-        this.embedWidth = width;
-        this.embedHeight = height;
-
-         
+      } else if (post.data.post_hint == "hosted:video") {
+        this.modalSource = post.data.media.reddit_video.fallback_url;
+        this.modalType = 'embed';
       } else if (post.data.post_hint === "link") {
         console.log(post.data.preview.images[0].variants.hasOwnProperty('gif'))
         if (post.data.preview.images[0].variants.hasOwnProperty('gif')) {
@@ -202,7 +206,7 @@ export default {
           this.modalSource = post.data.preview.images[0].source.url;
         }
         this.modalType= 'image';
-      }     
+      }
       this.modalTitle = post.data.title;
       this.showModal=true;
     },
