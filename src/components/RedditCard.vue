@@ -9,10 +9,10 @@
             <slot name="author"></slot>
             <slot name="time"></slot>
           </ul>
+          <div class="excerpt is-size-6-desktop is-size-7-touch"><slot name="excerpt"></slot></div>
         </div>
         <div class="column article-image"><slot name="image"></slot></div>
       </div>
-      <div class="excerpt is-size-6-desktop is-size-7-touch"><slot name="excerpt"></slot></div>
     </div>
   </div>
 </template>

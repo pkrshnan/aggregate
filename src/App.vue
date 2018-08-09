@@ -22,24 +22,25 @@
     <div v-if="selected == 'Reddit'">
       <Modal v-if="showModal" @close="showModal=false">
         <h3 class="modalTitle" slot="title">{{modalTitle}}</h3>
-        <iframe class="centered-image" v-if="modalType =='embed'" :src="modalSource" :height="embedHeight" :width="embedWidth"></iframe>
+        <iframe class="centered-image" v-if="modalType =='embed'" :src="modalSource" height="430" width="710"></iframe>
         <img class="centered-image" :src="modalSource" v-else></img>
       </Modal>
       <div class="container">
         <input v-model="subreddit" class="searchbar input is-rounded" type="text" placeholder="Enter Subreddit" v-on:keyup="fetchRedditData()">
       </div>
       <RedditCard v-for="post in redditPosts">
-        <h3 slot="title"><a :href="post.data.url" target="_blank">{{ post.data.title }}</a></h3>
+        <h3 slot="title"><a :href="'http://reddit.com' + post.data.permalink" target="_blank">{{ post.data.title }}</a></h3>
         <li class="article-source" slot="source"><a  :href="'http://www.reddit.com/r/'+ post.data.subreddit" target="_blank">r/{{ post.data.subreddit }}</a></li>
         <li class="article-author" slot="author"><a  :href="'http://www.reddit.com/u/' + post.data.author" target="_blank">u/{{ post.data.author }}</a></li>
         <li class="article-time" slot="time">{{ Date(post.data.created).slice(0,15) }}</li>
         <div slot="image" v-if='post.data.hasOwnProperty("preview")'>
           <img v-if="post.data.thumbnail == 'default'" class="link-image image" src="./assets/link.png">
           <h3 v-else-if="post.data.over_18 == true" class="title nsfw">NSFW</h3>
+          <h3 v-else-if="post.data.thumbnail == 'spoiler'" class="title nsfw">SPOILER</h3>
           <a v-else-if="post.data.thumbnail == 'image' || post.data.thumbnail == 'self'" @click="showRedditModal(post)"><img class="image" v-bind:src="post.data.preview.images[0].source.url"></a>
           <a v-else @click="showRedditModal(post)"><img class="image" :src="post.data.thumbnail"></a>
         </div>
-        <div v-else slot="excerpt">
+        <div slot="excerpt">
           <span v-html="parseMarkdown(post.data.selftext)"></span>
         </div>
       </RedditCard>
@@ -73,7 +74,7 @@
         <div v-if="post.urlToImage != null" slot="image">
           <img class="image" v-bind:src="post.urlToImage"></img>
         </div>
-        <p v-if="post.description != null"slot="excerpt">{{ post.description }}</p>
+        <p v-if="post.description != null" slot="excerpt">{{ post.description }}</p>
       </RedditCard>
     </div>
   </div>
@@ -162,7 +163,11 @@ export default {
           for (var i = 0; i < 100; i++) {
             axios.get("https://hacker-news.firebaseio.com/v0/item/" + this.hackerNewsPostIds[i] + ".json?print=pretty")
               .then(response => {
-                this.hackerNewsPosts.push(response.data)
+                console.log(response.data)
+                if (response.data != null) {
+                  this.hackerNewsPosts.push(response.data)
+
+                }
               })
           }
       }); 
@@ -189,8 +194,13 @@ export default {
 
          
       } else if (post.data.post_hint === "link") {
-        this.modalSource = post.data.preview.images[0].variants.gif.source.url;
-        console.log(post.data.preview.images[0].variants.gif.source.url);
+        console.log(post.data.preview.images[0].variants.hasOwnProperty('gif'))
+        if (post.data.preview.images[0].variants.hasOwnProperty('gif')) {
+          this.modalSource = post.data.preview.images[0].variants.gif.source.url;
+          console.log(post.data.preview.images[0].variants.gif.source.url);
+        } else {
+          this.modalSource = post.data.preview.images[0].source.url;
+        }
         this.modalType= 'image';
       }     
       this.modalTitle = post.data.title;
@@ -250,7 +260,7 @@ export default {
 }
 
 .image {
-  margin: auto;
+  margin: 0.5em auto;
   display: block;
   max-width: 140px;
   max-height: 140px;
@@ -260,12 +270,14 @@ export default {
   border: 1px solid #2c2c2c;
 }
 
-.excerpt {
+.excerpt{
   padding-bottom: 1em;
+  margin-top: 1em;
 }
+
 .nsfw {
   text-align: center;
-  padding: 0.5em 0;
+  padding: 2em 0;
   font-weight: 400 !important;
 }
 
